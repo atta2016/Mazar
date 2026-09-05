@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0F211F">
+<title>مسار — رفيقك اليومي</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F211F;
+    --bg-soft:#132723;
+    --card:#183330;
+    --card-2:#1E3D38;
+    --line: rgba(237,237,230,0.09);
+    --text:#EDEDE6;
+    --text-dim: rgba(237,237,230,0.58);
+    --text-faint: rgba(237,237,230,0.36);
+    --gold:#D4A054;
+    --gold-soft: rgba(212,160,84,0.16);
+    --teal:#4FA8A0;
+    --teal-soft: rgba(79,168,160,0.16);
+    --danger:#C1585A;
+    --danger-soft: rgba(193,88,90,0.14);
+    --radius: 18px;
+    --radius-sm: 12px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family:'IBM Plex Sans Arabic', system-ui, sans-serif;
+    overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+  }
+  #app{
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    display:flex;
+    flex-direction: column;
+    position: relative;
+  }
+  header.top{
+    padding: max(18px, env(safe-area-inset-top)) 20px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:10px;
+    background: linear-gradient(135deg, var(--teal), var(--gold));
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700; color:#0F211F; font-size:16px;
+  }
+  .brand .name{font-weight:700; font-size:18px; letter-spacing:0.2px;}
+  .streak-pill{
+    display:flex; align-items:center; gap:6px;
+    background: var(--gold-soft); color: var(--gold);
+    padding:6px 12px; border-radius:100px; font-size:13px; font-weight:600;
+  }
+  main{
+    flex:1;
+    padding: 4px 20px 100px;
+    overflow-y:auto;
+  }
+  .date-line{ color:var(--text-dim); font-size:14px; margin-bottom:18px;}
+  h1.screen-title{ font-size:22px; margin:6px 0 18px; font-weight:700;}
+  .card{
+    background: var(--card);
+    border-radius: var(--radius);
+    padding:18px;
+    margin-bottom:14px;
+    border:1px solid var(--line);
+  }
+  .card + .card{margin-top:14px;}
+  .card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .card-head .label{font-size:13px; color:var(--text-dim); font-weight:600;}
+  .big-num{font-size:15px; font-weight:600;}
+  .prayer-hero{
+    background: linear-gradient(160deg, var(--card-2), var(--card));
+    border-radius: var(--radius);
+    padding:22px;
+    margin-bottom:14px;
+    border:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .prayer-hero .tag{color:var(--teal); font-size:13px; font-weight:600; margin-bottom:6px;}
+  .prayer-hero .name{font-size:26px; font-weight:700; margin-bottom:4px;}
+  .prayer-hero .count{color:var(--text-dim); font-size:14px;}
+  .row-item{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .row-item:last-child{border-bottom:none;}
+  .check{
+    width:26px;height:26px;border-radius:8px;
+    border:1.5px solid var(--text-faint);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0; cursor:pointer; transition: all .15s ease;
+    font-size:15px; color:transparent;
+  }
+  .check.done{ background: var(--teal); border-color: var(--teal); color:#0F211F;}
+  .check.bad-done{ background: var(--danger); border-color: var(--danger); color:#fff;}
+  .row-text{flex:1; min-width:0;}
+  .row-title{font-size:15px; font-weight:500;}
+  .row-sub{font-size:12.5px; color:var(--text-faint); margin-top:2px;}
+  .row-title.struck{ text-decoration: line-through; color:var(--text-faint);}
+  .empty{
+    text-align:center; padding:30px 10px; color:var(--text-faint); font-size:14px;
+  }
+  .fab-row{display:flex; gap:10px; margin-top:4px;}
+  button{font-family:inherit;}
+  .btn{
+    border:none; border-radius: var(--radius-sm);
+    padding:12px 16px; font-size:14px; font-weight:600; cursor:pointer;
+    background: var(--card-2); color: var(--text);
+  }
+  .btn.gold{ background: var(--gold); color:#0F211F;}
+  .btn.ghost{ background: transparent; border:1px solid var(--line); color:var(--text-dim);}
+  .btn.block{width:100%;}
+  .btn.danger{ background: var(--danger-soft); color: var(--danger);}
+  .btn.sm{padding:8px 12px; font-size:13px; border-radius:10px;}
+  .progress-bar{ height:8px; border-radius:100px; background: rgba(255,255,255,0.06); overflow:hidden; margin-top:10px;}
+  .progress-fill{height:100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius:100px;}
+  .motivation{
+    font-size:14.5px; color:var(--text-dim); line-height:1.7; padding:16px 18px;
+    background: var(--teal-soft); border-radius: var(--radius); margin-bottom:14px;
+    border: 1px solid rgba(79,168,160,0.22);
+  }
+  nav.bottom{
+    position:sticky; bottom:0;
+    display:flex; justify-content:space-around;
+    padding: 10px 8px max(10px, env(safe-area-inset-bottom));
+    background: rgba(15,33,31,0.92);
+    backdrop-filter: blur(14px);
+    border-top:1px solid var(--line);
+  }
+  nav.bottom button{
+    background:none; border:none; color: var(--text-faint);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10px; padding:4px 2px; cursor:pointer; flex:1;
+  }
+  nav.bottom button .ic{font-size:17px;}
+  nav.bottom button.active{ color: var(--gold); }
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:13px; color:var(--text-dim); margin-bottom:6px; font-weight:600;}
+  .field input, .field select, .field textarea{
+    width:100%; background: var(--bg-soft); border:1px solid var(--line);
+    color:var(--text); padding:12px 14px; border-radius: var(--radius-sm);
+    font-size:14.5px; font-family:inherit;
+  }
+  .field textarea{resize:vertical; min-height:60px;}
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    display:flex; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .modal{
+    background: var(--bg-soft); width:100%; max-width:480px;
+    border-radius: 22px 22px 0 0; padding:22px 20px max(22px, env(safe-area-inset-bottom));
+    max-height:85vh; overflow-y:auto;
+  }
+  .modal h3{margin:0 0 16px; font-size:18px;}
+  .chip-row{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .chip{
+    padding:8px 14px; border-radius:100px; font-size:13px; cursor:pointer;
+    border:1px solid var(--line); color:var(--text-dim);
+  }
+  .chip.on{ background: var(--gold-soft); border-color: var(--gold); color: var(--gold); font-weight:600;}
+  .type-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .type-toggle .opt{
+    flex:1; text-align:center; padding:10px; border-radius:var(--radius-sm);
+    border:1px solid var(--line); color:var(--text-dim); cursor:pointer; font-size:14px; font-weight:600;
+  }
+  .type-toggle .opt.on-good{ background: var(--teal-soft); border-color:var(--teal); color:var(--teal);}
+  .type-toggle .opt.on-bad{ background: var(--danger-soft); border-color:var(--danger); color:var(--danger);}
+  .swipe-x{display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin:-2px -2px 2px;}
+  .day-toggle{
+    display:flex; gap:6px; margin-bottom:14px;
+  }
+  .day-toggle .d{
+    flex:1; text-align:center; padding:9px 0; border-radius:10px;
+    border:1px solid var(--line); font-size:12.5px; color:var(--text-faint); cursor:pointer;
+  }
+  .day-toggle .d.on{ background: var(--gold-soft); border-color: var(--gold); color:var(--gold); font-weight:700;}
+  .icon-btn{ background:none; border:none; color:var(--text-faint); font-size:18px; cursor:pointer; padding:4px 6px;}
+  .banner{
+    display:flex; align-items:center; gap:12px;
+    background: var(--gold-soft); border:1px solid rgba(212,160,84,0.3);
+    padding:14px 16px; border-radius: var(--radius); margin-bottom:14px; font-size:13.5px;
+    color: var(--gold);
+  }
+  .banner .btn{margin-inline-start:auto; flex-shrink:0;}
+  ::-webkit-scrollbar{width:0;height:0;}
+  a{color:var(--teal);}
+
+  .emergency-btn{
+    width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+    background: var(--danger-soft); color: var(--danger); border:1px solid rgba(193,88,90,0.3);
+    border-radius: var(--radius); padding:14px; font-size:14px; font-weight:700; cursor:pointer;
+    margin-bottom:14px;
+  }
+  .reset-list{display:flex; flex-direction:column; gap:10px; margin:14px 0;}
+  .reset-list .opt{
+    background: var(--bg-soft); border:1px solid var(--line); border-radius: var(--radius-sm);
+    padding:13px 14px; font-size:14px; cursor:pointer;
+  }
+  .timer-display{
+    text-align:center; font-size:42px; font-weight:700; color:var(--gold); margin:18px 0 6px; font-variant-numeric: tabular-nums;
+  }
+  .chart-row{display:flex; align-items:flex-end; gap:8px; height:120px; margin:16px 0 8px;}
+  .chart-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px;}
+  .chart-bar{width:100%; max-width:26px; border-radius:6px 6px 3px 3px; background: linear-gradient(180deg, var(--gold), var(--teal)); min-height:4px;}
+  .chart-col .lbl{font-size:11px; color:var(--text-faint);}
+  .reward-item{
+    display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .reward-item:last-child{border-bottom:none;}
+  .reward-badge{
+    width:40px;height:40px;border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700; flex-shrink:0;
+    background: var(--card-2); color:var(--text-faint);
+  }
+  .reward-badge.reached{ background: var(--gold); color:#0F211F;}
+  .danger-time-row{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .danger-time-row input{flex:1;}
+  .pattern-stat{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .pattern-stat:last-child{border-bottom:none;}
+  .pattern-stat .v{color:var(--gold); font-weight:700;}
+  .event-log-item{padding:10px 0; border-bottom:1px solid var(--line); font-size:13px; color:var(--text-dim);}
+  .event-log-item:last-child{border-bottom:none;}
+  .event-log-item .t{color:var(--text-faint); font-size:11.5px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mark">م</div>
+      <div class="name">مسار</div>
+    </div>
+    <div class="streak-pill" id="streakPill">🔥 0</div>
+  </header>
+  <main id="main"></main>
+  <nav class="bottom">
+    <button data-screen="today" class="active"><span class="ic">◆</span>اليوم</button>
+    <button data-screen="goals"><span class="ic">◈</span>الأهداف</button>
+    <button data-screen="habits"><span class="ic">✓</span>العادات</button>
+    <button data-screen="prayer"><span class="ic">☾</span>الصلاة</button>
+    <button data-screen="gym"><span class="ic">▲</span>الجيم</button>
+    <button data-screen="progress"><span class="ic">◔</span>التقدم</button>
+    <button data-screen="settings"><span class="ic">⚙</span>الإعدادات</button>
+  </nav>
+</div>
+
+<script>
+/* ---------------- Storage helpers ---------------- */
+const DB = {
+  get(key, fallback){
+    try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+    catch(e){ return fallback; }
+  },
+  set(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+};
+
+const KEYS = {
+  settings: 'masar_settings',
+  goals: 'masar_goals',
+  habits: 'masar_habits',
+  gym: 'masar_gym',
+  prayers: 'masar_prayers',
+  streak: 'masar_streak',
+  prayerCache: 'masar_prayer_cache',
+  rewards: 'masar_rewards',
+  customMotivations: 'masar_custom_motivations',
+  reflections: 'masar_reflections'
+};
+
+const defaultSettings = {
+  city: '', country: '', method: 5, notified: false, setupDone: false, reflectionTime: '21:00'
+};
+const defaultRewards = [
+  { id:'r5', days:5, text:'اشترِ لنفسك قهوة أو مشروبك المفضل', claimedAt:null },
+  { id:'r10', days:10, text:'إكسسوار جديد للجيم', claimedAt:null },
+  { id:'r30', days:30, text:'حذاء أو قطعة ملابس جديدة', claimedAt:null }
+];
+const RESET_ACTIONS = [
+  'قف، اشرب ماء، وانتظر 5 دقائق قبل أي قرار',
+  'افعل ضغطة واحدة (Push-up) أو اخرج للهواء بره',
+  'الرغبة مؤقتة — ستمر خلال دقائق قليلة إن انشغلت بشيء آخر',
+  'راسل صديقًا أو اتصل بأحد لدقيقة واحدة',
+  'اغسل وجهك أو غيّر مكانك الحالي فورًا'
+];
+const defaultPrayers = {
+  Fajr: { enabled:true, before:15 },
+  Dhuhr: { enabled:true, before:15 },
+  Asr: { enabled:true, before:15 },
+  Maghrib: { enabled:true, before:10 },
+  Isha: { enabled:true, before:15 }
+};
+const PRAYER_NAMES_AR = { Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء' };
+
+function state(){
+  return {
+    settings: DB.get(KEYS.settings, defaultSettings),
+    goals: DB.get(KEYS.goals, []),
+    habits: DB.get(KEYS.habits, []),
+    gym: DB.get(KEYS.gym, []),
+    prayers: DB.get(KEYS.prayers, defaultPrayers),
+    streak: DB.get(KEYS.streak, { count:0, lastDate:null }),
+    rewards: DB.get(KEYS.rewards, defaultRewards),
+    customMotivations: DB.get(KEYS.customMotivations, []),
+    reflections: DB.get(KEYS.reflections, {})
+  };
+}
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function timeBucket(d){
+  const h = d.getHours();
+  if(h < 6) return 'الفجر/الليل المتأخر';
+  if(h < 12) return 'الصباح';
+  if(h < 17) return 'بعد الظهر';
+  if(h < 21) return 'المساء';
+  return 'الليل';
+}
+function getDailyMotivation(s){
+  const pool = [...MOTIVATIONS, ...(s.customMotivations||[])];
+  return pool[new Date().getDate() % pool.length];
+}
+
+const MOTIVATIONS = [
+  'ابدأ بدقيقتين فقط. الاستمرار أهم من الكمال.',
+  'خطوة صغيرة اليوم أفضل من خطة كبيرة تبقى في الرأس.',
+  'لا تفوّت مرتين متتاليتين. مرة واحدة لا تُنهي شيئًا.',
+  'الرغبة في التسويف مؤقتة، ستمر إن بدأت.',
+  'التقدم لا يحتاج مزاجًا، يحتاج خطوة واحدة الآن.',
+  'أنت لا تحتاج حماسًا، تحتاج الخطوة التالية فقط.'
+];
+
+/* ---------------- Notifications ---------------- */
+function ensureNotifPermission(){
+  if(!('Notification' in window)) return Promise.resolve(false);
+  if(Notification.permission === 'granted') return Promise.resolve(true);
+  if(Notification.permission === 'denied') return Promise.resolve(false);
+  return Notification.requestPermission().then(p => p === 'granted');
+}
+
+function fireNotification(title, body, tag){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  if(document.visibilityState === 'visible'){
+    try{ new Notification(title, { body, icon:'icon-192.png', dir:'rtl', lang:'ar', tag }); }catch(e){}
+  } else if(navigator.serviceWorker && navigator.serviceWorker.controller){
+    navigator.serviceWorker.controller.postMessage({ type:'SHOW_NOTIFICATION', title, body, tag });
+  }
+}
+
+const firedToday = DB.get('masar_fired_' + todayStr(), {});
+function markFired(tag){
+  firedToday[tag] = true;
+  DB.set('masar_fired_' + todayStr(), firedToday);
+}
+function alreadyFired(tag){ return !!firedToday[tag]; }
+
+/* ---------------- Prayer times ---------------- */
+async function fetchPrayerTimes(){
+  const s = state().settings;
+  if(!s.city) return null;
+  const cache = DB.get(KEYS.prayerCache, null);
+  if(cache && cache.date === todayStr() && cache.city === s.city) return cache.timings;
+  try{
+    const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(s.city)}&country=${encodeURIComponent(s.country||'')}&method=${s.method}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if(data && data.data && data.data.timings){
+      DB.set(KEYS.prayerCache, { date: todayStr(), city: s.city, timings: data.data.timings });
+      return data.data.timings;
+    }
+  }catch(e){ console.warn('prayer fetch failed', e); }
+  return cache ? cache.timings : null;
+}
+
+function timeToDate(hhmm){
+  if(!hhmm) return null;
+  const [h,m] = hhmm.replace(/\s*\(.+\)/,'').split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+function nextPrayer(timings){
+  if(!timings) return null;
+  const order = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+  const now = new Date();
+  for(const name of order){
+    const t = timeToDate(timings[name]);
+    if(t && t > now) return { name, time: t };
+  }
+  // after Isha -> tomorrow's Fajr (approx, same time)
+  const fajr = timeToDate(timings['Fajr']);
+  if(fajr){ fajr.setDate(fajr.getDate()+1); return { name:'Fajr', time: fajr, tomorrow:true }; }
+  return null;
+}
+
+function fmtCountdown(target){
+  const diff = target - new Date();
+  if(diff <= 0) return 'الآن';
+  const mins = Math.floor(diff/60000);
+  const h = Math.floor(mins/60), m = mins % 60;
+  return h > 0 ? `بعد ${h} س ${m} د` : `بعد ${m} د`;
+}
+function fmtTime(d){
+  return d.toLocaleTimeString('ar-EG',{hour:'2-digit', minute:'2-digit'});
+}
+
+/* ---------------- Router ---------------- */
+let currentScreen = 'today';
+let cachedTimings = null;
+
+function render(){
+  document.querySelectorAll('nav.bottom button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.screen === currentScreen);
+  });
+  const main = document.getElementById('main');
+  const s = state();
+  document.getElementById('streakPill').textContent = `🔥 ${s.streak.count}`;
+  if(currentScreen === 'today') renderToday(main, s);
+  else if(currentScreen === 'goals') renderGoals(main, s);
+  else if(currentScreen === 'habits') renderHabits(main, s);
+  else if(currentScreen === 'prayer') renderPrayer(main, s);
+  else if(currentScreen === 'gym') renderGym(main, s);
+  else if(currentScreen === 'progress') renderProgress(main, s);
+  else if(currentScreen === 'settings') renderSettings(main, s);
+}
+
+document.querySelectorAll('nav.bottom button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ currentScreen = btn.dataset.screen; render(); });
+});
+
+/* ---------------- Today screen ---------------- */
+function renderToday(main, s){
+  const dateLine = new Date().toLocaleDateString('ar-EG',{ weekday:'long', day:'numeric', month:'long' });
+  let html = `<div class="date-line">${dateLine}</div>`;
+
+  if(!s.settings.setupDone){
+    html += `<div class="banner">👋 أكمل الإعداد الأول (المدينة لمواقيت الصلاة) من الإعدادات لتفعيل التذكيرات.
+      <button class="btn sm gold" onclick="currentScreen='settings';render();">الإعدادات</button></div>`;
+  }
+
+  html += `<div class="emergency-btn" onclick="openEmergencyModal()">🆘 أشعر برغبة الآن — ساعدني أرجع للمسار</div>`;
+
+  // Prayer hero
+  if(cachedTimings){
+    const np = nextPrayer(cachedTimings);
+    if(np){
+      html += `<div class="prayer-hero">
+        <div class="tag">الصلاة القادمة${np.tomorrow?' (غدًا)':''}</div>
+        <div class="name">${PRAYER_NAMES_AR[np.name]} — ${fmtTime(np.time)}</div>
+        <div class="count">${fmtCountdown(np.time)}</div>
+      </div>`;
+    }
+  } else if(s.settings.city){
+    html += `<div class="prayer-hero"><div class="tag">جاري تحميل مواقيت الصلاة…</div></div>`;
+  }
+
+  // Gym today
+  const todayIdx = new Date().getDay();
+  const gymToday = s.gym.filter(g => g.day === todayIdx);
+  if(gymToday.length){
+    gymToday.forEach(g=>{
+      html += `<div class="card"><div class="card-head"><span class="label">الجيم اليوم</span><span class="big-num">${g.time}</span></div>
+      <div class="row-sub">تذكير قبل ${g.prepMinutes} دقيقة بتحضير الشنطة</div></div>`;
+    });
+  }
+
+  // Top goals (active, max 3)
+  const activeGoals = s.goals.filter(g=>!g.done).slice(0,3);
+  html += `<div class="card"><div class="card-head"><span class="label">أهم أهدافك اليوم</span></div>`;
+  if(activeGoals.length === 0){
+    html += `<div class="empty">لا يوجد أهداف بعد. أضف هدفًا من تبويب "الأهداف".</div>`;
+  } else {
+    activeGoals.forEach(g=>{
+      const doneToday = g.log && g.log[todayStr()];
+      html += `<div class="row-item">
+        <div class="check ${doneToday?'done':''}" onclick="toggleGoalToday('${g.id}')">${doneToday?'✓':''}</div>
+        <div class="row-text">
+          <div class="row-title ${doneToday?'struck':''}">${escapeHtml(g.dailyAction || g.title)}</div>
+          <div class="row-sub">${escapeHtml(g.title)}</div>
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // Habits (good)
+  const goodHabits = s.habits.filter(h=>h.type==='good' && h.active);
+  html += `<div class="card"><div class="card-head"><span class="label">عادات اليوم</span></div>`;
+  if(goodHabits.length===0){
+    html += `<div class="empty">لا عادات مضافة بعد.</div>`;
+  } else {
+    goodHabits.forEach(h=>{
+      const doneToday = h.logs && h.logs[todayStr()]==='done';
+      html += `<div class="row-item">
+        <div class="check ${doneToday?'done':''}" onclick="toggleHabitToday('${h.id}')">${doneToday?'✓':''}</div>
+        <div class="row-text">
+          <div class="row-title ${doneToday?'struck':''}">${escapeHtml(h.name)}</div>
+          ${h.reminderTime?`<div class="row-sub">تذكير ${h.reminderTime}</div>`:''}
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // Bad habits check-in
+  const badHabits = s.habits.filter(h=>h.type==='bad' && h.active);
+  if(badHabits.length){
+    html += `<div class="card"><div class="card-head"><span class="label">تحقق من العادات السلبية</span></div>`;
+    badHabits.forEach(h=>{
+      const status = h.logs && h.logs[todayStr()];
+      html += `<div class="row-item">
+        <div class="check ${status==='avoided'?'done':''}" onclick="toggleBadHabitToday('${h.id}')">${status==='avoided'?'✓':''}</div>
+        <div class="row-text">
+          <div class="row-title">${status==='avoided' ? 'تجنبت: ' : ''}${escapeHtml(h.name)}</div>
+          <div class="row-sub">اضغط عند نجاحك بتجنبها اليوم</div>
+        </div>
+        <button class="btn sm ghost" onclick="openBadEventModal('${h.id}')">سجّل رغبة/انزلاق</button>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="motivation">${getDailyMotivation(s)}</div>`;
+
+  main.innerHTML = html;
+  updateStreakIfComplete(s);
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div'); d.textContent = str||''; return d.innerHTML;
+}
+
+function toggleGoalToday(id){
+  const s = state();
+  const g = s.goals.find(x=>x.id===id); if(!g) return;
+  g.log = g.log || {};
+  const t = todayStr();
+  g.log[t] = !g.log[t];
+  DB.set(KEYS.goals, s.goals);
+  render();
+}
+function toggleHabitToday(id){
+  const s = state();
+  const h = s.habits.find(x=>x.id===id); if(!h) return;
+  h.logs = h.logs || {};
+  const t = todayStr();
+  const wasDone = h.logs[t]==='done';
+  h.logs[t] = wasDone ? undefined : 'done';
+  h.streak = computeStreak(h.logs);
+  DB.set(KEYS.habits, s.habits);
+  render();
+}
+function toggleBadHabitToday(id){
+  const s = state();
+  const h = s.habits.find(x=>x.id===id); if(!h) return;
+  h.logs = h.logs || {};
+  const t = todayStr();
+  h.logs[t] = h.logs[t]==='avoided' ? undefined : 'avoided';
+  DB.set(KEYS.habits, s.habits);
+  render();
+}
+function computeStreak(logs){
+  let count = 0;
+  let d = new Date();
+  while(true){
+    const key = d.toISOString().slice(0,10);
+    if(logs[key]==='done'){ count++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return count;
+}
+function updateStreakIfComplete(s){
+  const t = todayStr();
+  const goalsOk = s.goals.filter(g=>!g.done).every(g=> g.log && g.log[t]) ;
+  const habitsOk = s.habits.filter(h=>h.type==='good'&&h.active).every(h=> h.logs && h.logs[t]==='done');
+  const hasAny = s.goals.length + s.habits.filter(h=>h.type==='good').length > 0;
+  if(hasAny && goalsOk && habitsOk){
+    const streak = s.streak;
+    if(streak.lastDate !== t){
+      const yest = new Date(); yest.setDate(yest.getDate()-1);
+      const yestStr = yest.toISOString().slice(0,10);
+      streak.count = (streak.lastDate === yestStr) ? streak.count + 1 : 1;
+      streak.lastDate = t;
+      DB.set(KEYS.streak, streak);
+      document.getElementById('streakPill').textContent = `🔥 ${streak.count}`;
+      checkRewards(streak.count);
+    }
+  }
+}
+
+function checkRewards(streakCount){
+  const s = state();
+  const hit = s.rewards.find(r => r.days === streakCount && !r.claimedAt);
+  if(hit){
+    hit.claimedAt = todayStr();
+    DB.set(KEYS.rewards, s.rewards);
+    setTimeout(()=>alert(`🎉 وصلت ${streakCount} يوم متتالية! مكافأتك: ${hit.text}`), 300);
+  }
+}
+
+/* ---------------- Goals screen ---------------- */
+function renderGoals(main, s){
+  let html = `<h1 class="screen-title">الأهداف</h1>`;
+  html += `<div class="row-sub" style="margin-bottom:14px;">يُفضّل ألا يزيد عدد الأهداف النشطة عن 3 في نفس الوقت.</div>`;
+  if(s.goals.length===0){
+    html += `<div class="empty">لا أهداف بعد.</div>`;
+  }
+  s.goals.forEach(g=>{
+    const days = Object.values(g.log||{}).filter(Boolean).length;
+    const pct = g.targetDays ? Math.min(100, Math.round(days/g.targetDays*100)) : 0;
+    html += `<div class="card">
+      <div class="card-head">
+        <span class="row-title">${escapeHtml(g.title)}</span>
+        <button class="icon-btn" onclick="deleteGoal('${g.id}')">✕</button>
+      </div>
+      ${g.reason?`<div class="row-sub">${escapeHtml(g.reason)}</div>`:''}
+      <div class="row-sub" style="margin-top:8px;">الخطوة اليومية: ${escapeHtml(g.dailyAction||'-')}</div>
+      ${g.targetDays?`<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="row-sub" style="margin-top:6px;">${days} / ${g.targetDays} يوم</div>`:''}
+    </div>`;
+  });
+  html += `<button class="btn gold block" onclick="openGoalModal()">+ إضافة هدف</button>`;
+  main.innerHTML = html;
+}
+function deleteGoal(id){
+  const s = state();
+  s.goals = s.goals.filter(g=>g.id!==id);
+  DB.set(KEYS.goals, s.goals);
+  render();
+}
+function openGoalModal(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h3>هدف جديد</h3>
+    <div class="field"><label>اسم الهدف</label><input id="g_title" placeholder="مثال: أصبح أقوى بدنيًا"></div>
+    <div class="field"><label>لماذا يهمك هذا الهدف؟</label><textarea id="g_reason" placeholder="اختياري"></textarea></div>
+    <div class="field"><label>الخطوة اليومية الصغيرة</label><input id="g_action" placeholder="مثال: 20 دقيقة تمرين"></div>
+    <div class="field"><label>مدة الهدف بالأيام (اختياري)</label><input id="g_target" type="number" placeholder="مثال: 30"></div>
+    <button class="btn gold block" onclick="saveGoal()">حفظ الهدف</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+function closeModal(){
+  document.querySelector('.modal-overlay')?.remove();
+}
+
+/* ---------------- Emergency reset ---------------- */
+let emergencyTimerInterval = null;
+function openEmergencyModal(){
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h3>ارجع للمسار الآن</h3>
+    <div class="row-sub">اختر إجراء سريع، أو ابدأ مؤقت دقيقتين وانتظر حتى تمر الرغبة.</div>
+    <div class="reset-list">${RESET_ACTIONS.map(a=>`<div class="opt">${a}</div>`).join('')}</div>
+    <div id="emg_timer_area"></div>
+    <button class="btn gold block" onclick="startEmergencyTimer()">ابدأ مؤقت دقيقتين</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="closeEmergencyModal()">إغلاق</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+function closeEmergencyModal(){
+  if(emergencyTimerInterval) clearInterval(emergencyTimerInterval);
+  closeModal();
+}
+function startEmergencyTimer(){
+  let secs = 120;
+  const area = document.getElementById('emg_timer_area');
+  if(!area) return;
+  if(emergencyTimerInterval) clearInterval(emergencyTimerInterval);
+  const tick = ()=>{
+    const m = Math.floor(secs/60), s2 = secs%60;
+    area.innerHTML = `<div class="timer-display">${m}:${String(s2).padStart(2,'0')}</div><div class="row-sub" style="text-align:center;">تنفّس ببطء. سينتهي المؤقت تلقائيًا.</div>`;
+    if(secs<=0){ clearInterval(emergencyTimerInterval); area.innerHTML += `<div class="row-sub" style="text-align:center; color:var(--teal); margin-top:6px;">أحسنت. مرّت الرغبة.</div>`; return; }
+    secs--;
+  };
+  tick();
+  emergencyTimerInterval = setInterval(tick, 1000);
+}
+
+/* ---------------- Bad habit event logging ---------------- */
+const TRIGGER_OPTIONS = ['ملل','ضغط/توتر','تعب','بعد استخدام الجوال','وحدة','غير ذلك'];
+let badEventHabitId = null;
+let badEventTrigger = null;
+function openBadEventModal(habitId){
+  badEventHabitId = habitId;
+  badEventTrigger = null;
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h3>تسجيل رغبة أو انزلاق</h3>
+    <div class="field"><label>ماذا حدث؟</label>
+      <div class="chip-row" id="trigger_chips">${TRIGGER_OPTIONS.map(t=>`<div class="chip" data-t="${t}" onclick="pickTrigger('${t}')">${t}</div>`).join('')}</div>
+    </div>
+    <div class="field"><label>وش ممكن تسوي في المرة الجاية؟ (اختياري)</label><textarea id="be_note" placeholder="مثال: أمشي أو أشرب ماء"></textarea></div>
+    <button class="btn gold block" onclick="saveBadEvent('slip')">سجّل انزلاق</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="saveBadEvent('urge')">فقط رغبة (لم أنزلق)</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+function pickTrigger(t){
+  badEventTrigger = t;
+  document.querySelectorAll('#trigger_chips .chip').forEach(c=>c.classList.toggle('on', c.dataset.t===t));
+}
+function saveBadEvent(type){
+  const s = state();
+  const h = s.habits.find(x=>x.id===badEventHabitId); if(!h) return;
+  h.events = h.events || [];
+  h.events.push({
+    id: uid(), date: todayStr(), time: new Date().toTimeString().slice(0,5),
+    type, trigger: badEventTrigger || 'غير محدد',
+    note: document.getElementById('be_note').value.trim()
+  });
+  DB.set(KEYS.habits, s.habits);
+  closeModal();
+  render();
+}
+function saveGoal(){
+  const title = document.getElementById('g_title').value.trim();
+  if(!title) return;
+  const s = state();
+  s.goals.push({
+    id: uid(),
+    title,
+    reason: document.getElementById('g_reason').value.trim(),
+    dailyAction: document.getElementById('g_action').value.trim(),
+    targetDays: parseInt(document.getElementById('g_target').value) || null,
+    log: {},
+    done: false
+  });
+  DB.set(KEYS.goals, s.goals);
+  closeModal();
+  render();
+}
+
+/* ---------------- Habits screen ---------------- */
+function renderHabits(main, s){
+  let html = `<h1 class="screen-title">العادات</h1>`;
+  const good = s.habits.filter(h=>h.type==='good');
+  const bad = s.habits.filter(h=>h.type==='bad');
+
+  html += `<div class="card-head" style="margin-bottom:6px;"><span class="label">عادات جيدة</span></div>`;
+  if(good.length===0) html += `<div class="empty" style="margin-bottom:10px;">لا عادات جيدة بعد.</div>`;
+  good.forEach(h=>{
+    html += habitCard(h);
+  });
+
+  html += `<div class="card-head" style="margin:18px 0 6px;"><span class="label">عادات تريد تركها</span></div>`;
+  if(bad.length===0) html += `<div class="empty" style="margin-bottom:10px;">لا عادات سلبية مسجّلة.</div>`;
+  bad.forEach(h=>{
+    html += habitCard(h);
+  });
+
+  html += `<button class="btn gold block" style="margin-top:10px;" onclick="openHabitModal()">+ إضافة عادة</button>`;
+  main.innerHTML = html;
+}
+function habitCard(h){
+  return `<div class="card">
+    <div class="card-head">
+      <span class="row-title">${escapeHtml(h.name)}</span>
+      <button class="icon-btn" onclick="deleteHabit('${h.id}')">✕</button>
+    </div>
+    <div class="row-sub">${h.type==='good'
+      ? (h.reminderTime ? 'تذكير الساعة ' + h.reminderTime : 'بدون تذكير محدد') + ' · سلسلة ' + (h.streak||0) + ' يوم'
+      : ((h.dangerTimes && h.dangerTimes.length) ? 'أوقات خطر: ' + h.dangerTimes.join('، ') : 'بدون أوقات خطر محددة') + ' · ' + ((h.events||[]).filter(e=>e.date===todayStr()).length) + ' تسجيل اليوم'
+    }</div>
+  </div>`;
+}
+function deleteHabit(id){
+  const s = state();
+  s.habits = s.habits.filter(h=>h.id!==id);
+  DB.set(KEYS.habits, s.habits);
+  render();
+}
+let newHabitType = 'good';
+let newHabitDangerTimes = [];
+function openHabitModal(){
+  newHabitType = 'good';
+  newHabitDangerTimes = [];
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h3>عادة جديدة</h3>
+    <div class="type-toggle">
+      <div class="opt on-good" id="opt_good" onclick="setHabitType('good')">عادة أريد بناءها</div>
+      <div class="opt" id="opt_bad" onclick="setHabitType('bad')">عادة أريد تركها</div>
+    </div>
+    <div class="field"><label>اسم العادة</label><input id="h_name" placeholder="مثال: شرب الماء / قضم الأظافر"></div>
+    <div class="field" id="h_time_field"><label>وقت التذكير (اختياري)</label><input id="h_time" type="time"></div>
+    <div class="field" id="h_danger_field" style="display:none;">
+      <label>أوقات الخطر (تذكير وقاية، اختياري)</label>
+      <div id="danger_rows"></div>
+      <button class="btn ghost sm" onclick="addDangerTimeRow()">+ إضافة وقت خطر</button>
+    </div>
+    <button class="btn gold block" onclick="saveHabit()">حفظ العادة</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+function setHabitType(t){
+  newHabitType = t;
+  document.getElementById('opt_good').classList.toggle('on-good', t==='good');
+  document.getElementById('opt_bad').classList.toggle('on-bad', t==='bad');
+  document.getElementById('h_time_field').style.display = t==='good' ? 'block' : 'none';
+  document.getElementById('h_danger_field').style.display = t==='bad' ? 'block' : 'none';
+}
+function addDangerTimeRow(){
+  const wrap = document.getElementById('danger_rows');
+  const rowId = uid();
+  const row = document.createElement('div');
+  row.className = 'danger-time-row';
+  row.id = 'dt_' + rowId;
+  row.innerHTML = `<input type="time"><button class="icon-btn" onclick="document.getElementById('dt_${rowId}').remove()">✕</button>`;
+  wrap.appendChild(row);
+}
+function saveHabit(){
+  const name = document.getElementById('h_name').value.trim();
+  if(!name) return;
+  const s = state();
+  const dangerTimes = newHabitType==='bad'
+    ? Array.from(document.querySelectorAll('#danger_rows input[type=time]')).map(i=>i.value).filter(Boolean)
+    : [];
+  s.habits.push({
+    id: uid(), name, type:newHabitType,
+    reminderTime: newHabitType==='good' ? (document.getElementById('h_time').value || null) : null,
+    dangerTimes,
+    active:true, streak:0, logs:{}, events:[]
+  });
+  DB.set(KEYS.habits, s.habits);
+  closeModal();
+  render();
+}
+
+/* ---------------- Prayer screen ---------------- */
+function renderPrayer(main, s){
+  let html = `<h1 class="screen-title">الصلاة</h1>`;
+  if(!s.settings.city){
+    html += `<div class="banner">أضف مدينتك من الإعدادات لتفعيل مواقيت الصلاة الدقيقة.
+      <button class="btn sm gold" onclick="currentScreen='settings';render();">الإعدادات</button></div>`;
+  }
+  html += `<div class="card"><div class="card-head"><span class="label">تفعيل تذكير كل صلاة</span></div>`;
+  Object.keys(defaultPrayers).forEach(name=>{
+    const p = s.prayers[name] || defaultPrayers[name];
+    const t = cachedTimings ? cachedTimings[name] : null;
+    html += `<div class="row-item">
+      <div class="check ${p.enabled?'done':''}" onclick="togglePrayer('${name}')">${p.enabled?'✓':''}</div>
+      <div class="row-text">
+        <div class="row-title">${PRAYER_NAMES_AR[name]}</div>
+        <div class="row-sub">${t ? 'الوقت: ' + t.slice(0,5) : ''} · تذكير قبل ${p.before} دقيقة</div>
+      </div>
+      <input type="number" value="${p.before}" min="0" max="60" style="width:56px; background:var(--bg-soft); border:1px solid var(--line); color:var(--text); border-radius:8px; padding:6px; text-align:center;" onchange="setPrayerBefore('${name}', this.value)">
+    </div>`;
+  });
+  html += `</div>`;
+  main.innerHTML = html;
+}
+function togglePrayer(name){
+  const s = state();
+  s.prayers[name] = s.prayers[name] || {...defaultPrayers[name]};
+  s.prayers[name].enabled = !s.prayers[name].enabled;
+  DB.set(KEYS.prayers, s.prayers);
+  render();
+}
+function setPrayerBefore(name, val){
+  const s = state();
+  s.prayers[name] = s.prayers[name] || {...defaultPrayers[name]};
+  s.prayers[name].before = parseInt(val)||0;
+  DB.set(KEYS.prayers, s.prayers);
+}
+
+/* ---------------- Gym screen ---------------- */
+const DAY_NAMES = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+function renderGym(main, s){
+  let html = `<h1 class="screen-title">الجيم</h1>`;
+  if(s.gym.length===0) html += `<div class="empty">لا مواعيد جيم مضافة بعد.</div>`;
+  s.gym.sort((a,b)=>a.day-b.day).forEach(g=>{
+    html += `<div class="card">
+      <div class="card-head">
+        <span class="row-title">${DAY_NAMES[g.day]} — ${g.time}</span>
+        <button class="icon-btn" onclick="deleteGym('${g.id}')">✕</button>
+      </div>
+      <div class="row-sub">تذكير التحضير قبل ${g.prepMinutes} دقيقة${g.backupAction ? ' · بديل: ' + escapeHtml(g.backupAction) : ''}</div>
+    </div>`;
+  });
+  html += `<button class="btn gold block" onclick="openGymModal()">+ إضافة موعد جيم</button>`;
+  main.innerHTML = html;
+}
+function deleteGym(id){
+  const s = state();
+  s.gym = s.gym.filter(g=>g.id!==id);
+  DB.set(KEYS.gym, s.gym);
+  render();
+}
+let newGymDay = 0;
+function openGymModal(){
+  newGymDay = new Date().getDay();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal">
+    <h3>موعد جيم جديد</h3>
+    <div class="day-toggle">${DAY_NAMES.map((d,i)=>`<div class="d ${i===newGymDay?'on':''}" data-day="${i}" onclick="pickGymDay(${i})">${d}</div>`).join('')}</div>
+    <div class="field"><label>الوقت</label><input id="gym_time" type="time" value="18:00"></div>
+    <div class="field"><label>تذكير التحضير قبل (دقيقة)</label><input id="gym_prep" type="number" value="30"></div>
+    <div class="field"><label>بديل عند التفويت (اختياري)</label><input id="gym_backup" placeholder="مثال: 10 دقائق تمرين منزلي"></div>
+    <button class="btn gold block" onclick="saveGym()">حفظ الموعد</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="closeModal()">إلغاء</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+function pickGymDay(i){
+  newGymDay = i;
+  document.querySelectorAll('.day-toggle .d').forEach(el=>el.classList.toggle('on', parseInt(el.dataset.day)===i));
+}
+function saveGym(){
+  const time = document.getElementById('gym_time').value;
+  if(!time) return;
+  const s = state();
+  s.gym.push({
+    id: uid(), day: newGymDay, time,
+    prepMinutes: parseInt(document.getElementById('gym_prep').value)||30,
+    backupAction: document.getElementById('gym_backup').value.trim()
+  });
+  DB.set(KEYS.gym, s.gym);
+  closeModal();
+  render();
+}
+
+/* ---------------- Progress screen ---------------- */
+function dayCompletionPct(s, dateStr){
+  const goals = s.goals.filter(g=>!g.done);
+  const goodHabits = s.habits.filter(h=>h.type==='good');
+  const total = goals.length + goodHabits.length;
+  if(total===0) return null;
+  let done = 0;
+  goals.forEach(g=>{ if(g.log && g.log[dateStr]) done++; });
+  goodHabits.forEach(h=>{ if(h.logs && h.logs[dateStr]==='done') done++; });
+  return Math.round(done/total*100);
+}
+function renderProgress(main, s){
+  let html = `<h1 class="screen-title">التقدم</h1>`;
+
+  // Weekly chart
+  const days = [];
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); days.push(d); }
+  html += `<div class="card"><div class="card-head"><span class="label">آخر 7 أيام</span></div>`;
+  const pcts = days.map(d=>dayCompletionPct(s, d.toISOString().slice(0,10)));
+  if(pcts.every(p=>p===null)){
+    html += `<div class="empty">أضف أهدافًا أو عادات لترى تقدمك هنا.</div>`;
+  } else {
+    html += `<div class="chart-row">${days.map((d,i)=>{
+      const p = pcts[i] ?? 0;
+      const lbl = d.toLocaleDateString('ar-EG',{weekday:'short'});
+      return `<div class="chart-col"><div class="chart-bar" style="height:${Math.max(4,p)}%"></div><div class="lbl">${lbl}</div></div>`;
+    }).join('')}</div>`;
+  }
+  html += `</div>`;
+
+  // Rewards
+  html += `<div class="card"><div class="card-head"><span class="label">المكافآت</span></div>`;
+  s.rewards.slice().sort((a,b)=>a.days-b.days).forEach(r=>{
+    const reached = s.streak.count >= r.days || r.claimedAt;
+    html += `<div class="reward-item">
+      <div class="reward-badge ${reached?'reached':''}">${r.days}</div>
+      <div class="row-text">
+        <div class="row-title ${reached?'':''}">${escapeHtml(r.text)}</div>
+        <div class="row-sub">${reached ? 'تم الوصول' : `باقي ${r.days - s.streak.count} يوم`}</div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // Pattern detection
+  const allEvents = [];
+  s.habits.filter(h=>h.type==='bad').forEach(h=> (h.events||[]).forEach(e=> allEvents.push({...e, habit:h.name})));
+  if(allEvents.length){
+    const triggerCounts = {};
+    const bucketCounts = {};
+    allEvents.forEach(e=>{
+      triggerCounts[e.trigger] = (triggerCounts[e.trigger]||0)+1;
+      const bucket = timeBucket(timeToDate(e.time) || new Date());
+      bucketCounts[bucket] = (bucketCounts[bucket]||0)+1;
+    });
+    const topTrigger = Object.entries(triggerCounts).sort((a,b)=>b[1]-a[1])[0];
+    const topBucket = Object.entries(bucketCounts).sort((a,b)=>b[1]-a[1])[0];
+    html += `<div class="card"><div class="card-head"><span class="label">أنماط ملاحظة</span></div>
+      <div class="pattern-stat"><span>أكثر سبب متكرر</span><span class="v">${escapeHtml(topTrigger[0])} (${topTrigger[1]})</span></div>
+      <div class="pattern-stat"><span>أكثر وقت متكرر</span><span class="v">${escapeHtml(topBucket[0])} (${topBucket[1]})</span></div>
+      <div class="row-sub" style="margin-top:8px;">آخر التسجيلات:</div>
+      ${allEvents.slice(-5).reverse().map(e=>`<div class="event-log-item">${e.type==='slip'?'انزلاق':'رغبة'} — ${escapeHtml(e.habit)} <span class="t">(${e.trigger} · ${e.time})</span>${e.note?' — '+escapeHtml(e.note):''}</div>`).join('')}
+    </div>`;
+  }
+
+  // Night reflection
+  const t = todayStr();
+  const existingNote = (s.reflections[t] && s.reflections[t].note) || '';
+  html += `<div class="card">
+    <div class="card-head"><span class="label">تأمل الليلة</span></div>
+    <div class="field"><textarea id="reflect_note" placeholder="كيف كان يومك؟ إيش نجحت فيه، وإيش تبي تسويه أحسن بكرة؟">${escapeHtml(existingNote)}</textarea></div>
+    <button class="btn gold block" onclick="saveReflection()">حفظ التأمل</button>
+  </div>`;
+
+  main.innerHTML = html;
+}
+function saveReflection(){
+  const s = state();
+  const t = todayStr();
+  s.reflections[t] = { note: document.getElementById('reflect_note').value.trim() };
+  DB.set(KEYS.reflections, s.reflections);
+  alert('تم الحفظ.');
+}
+
+/* ---------------- Settings screen ---------------- */
+function renderSettings(main, s){
+  let html = `<h1 class="screen-title">الإعدادات</h1>`;
+  html += `<div class="card">
+    <div class="field"><label>المدينة (لمواقيت الصلاة)</label><input id="set_city" value="${escapeHtml(s.settings.city)}" placeholder="مثال: سانت كاثرينز"></div>
+    <div class="field"><label>الدولة</label><input id="set_country" value="${escapeHtml(s.settings.country)}" placeholder="مثال: كندا"></div>
+    <div class="field"><label>طريقة الحساب</label>
+      <select id="set_method">
+        <option value="2" ${s.settings.method==2?'selected':''}>ISNA (أمريكا الشمالية)</option>
+        <option value="3" ${s.settings.method==3?'selected':''}>MWL</option>
+        <option value="4" ${s.settings.method==4?'selected':''}>أم القرى</option>
+        <option value="5" ${s.settings.method==5?'selected':''}>مصر</option>
+      </select>
+    </div>
+    <button class="btn gold block" onclick="saveSettings()">حفظ</button>
+  </div>`;
+  html += `<div class="card">
+    <div class="row-title" style="margin-bottom:8px;">الإشعارات</div>
+    <div class="row-sub" style="margin-bottom:12px;">التذكيرات تعمل أثناء فتح التطبيق أو تشغيله في الخلفية. إذا أغلقت التطبيق تمامًا من الجوال، تتوقف التذكيرات — افتح التطبيق بشكل دوري خلال اليوم.</div>
+    <button class="btn ghost block" onclick="requestNotif()">تفعيل الإشعارات</button>
+  </div>`;
+
+  html += `<div class="card">
+    <div class="field"><label>وقت تأمل الليلة (تذكير)</label><input id="set_reflect_time" type="time" value="${s.settings.reflectionTime||'21:00'}"></div>
+    <button class="btn ghost block" onclick="saveReflectionTime()">حفظ الوقت</button>
+  </div>`;
+
+  html += `<div class="card"><div class="card-head"><span class="label">المكافآت (حسب أيام السلسلة)</span></div>`;
+  s.rewards.slice().sort((a,b)=>a.days-b.days).forEach(r=>{
+    html += `<div class="row-item">
+      <input type="number" value="${r.days}" style="width:56px; background:var(--bg-soft); border:1px solid var(--line); color:var(--text); border-radius:8px; padding:6px; text-align:center;" onchange="updateRewardDays('${r.id}', this.value)">
+      <input value="${escapeHtml(r.text)}" style="flex:1; background:var(--bg-soft); border:1px solid var(--line); color:var(--text); border-radius:8px; padding:8px;" onchange="updateRewardText('${r.id}', this.value)">
+      <button class="icon-btn" onclick="deleteReward('${r.id}')">✕</button>
+    </div>`;
+  });
+  html += `<button class="btn ghost block" style="margin-top:10px;" onclick="addReward()">+ إضافة مكافأة</button></div>`;
+
+  html += `<div class="card"><div class="card-head"><span class="label">رسائل تحفيزية خاصة بك</span></div>`;
+  if(s.customMotivations.length===0) html += `<div class="empty">لا رسائل مضافة بعد.</div>`;
+  s.customMotivations.forEach((m,i)=>{
+    html += `<div class="row-item"><div class="row-text row-sub">${escapeHtml(m)}</div><button class="icon-btn" onclick="deleteCustomMotivation(${i})">✕</button></div>`;
+  });
+  html += `<div class="field" style="margin-top:10px;"><input id="new_motivation" placeholder="اكتب رسالة تحفيزية جديدة"></div>
+    <button class="btn ghost block" onclick="addCustomMotivation()">+ إضافة رسالة</button></div>`;
+
+  html += `<div class="card">
+    <div class="row-sub">لتثبيت التطبيق على شاشتك الرئيسية: افتح قائمة المتصفح (⋮) واختر "إضافة إلى الشاشة الرئيسية".</div>
+  </div>`;
+  main.innerHTML = html;
+}
+function saveReflectionTime(){
+  const s = state();
+  s.settings.reflectionTime = document.getElementById('set_reflect_time').value || '21:00';
+  DB.set(KEYS.settings, s.settings);
+  alert('تم الحفظ.');
+}
+function updateRewardDays(id, val){
+  const s = state();
+  const r = s.rewards.find(x=>x.id===id); if(!r) return;
+  r.days = parseInt(val)||r.days;
+  DB.set(KEYS.rewards, s.rewards);
+}
+function updateRewardText(id, val){
+  const s = state();
+  const r = s.rewards.find(x=>x.id===id); if(!r) return;
+  r.text = val;
+  DB.set(KEYS.rewards, s.rewards);
+}
+function deleteReward(id){
+  const s = state();
+  s.rewards = s.rewards.filter(r=>r.id!==id);
+  DB.set(KEYS.rewards, s.rewards);
+  render();
+}
+function addReward(){
+  const s = state();
+  s.rewards.push({ id: uid(), days: 15, text: 'مكافأة جديدة', claimedAt:null });
+  DB.set(KEYS.rewards, s.rewards);
+  render();
+}
+function addCustomMotivation(){
+  const val = document.getElementById('new_motivation').value.trim();
+  if(!val) return;
+  const s = state();
+  s.customMotivations.push(val);
+  DB.set(KEYS.customMotivations, s.customMotivations);
+  render();
+}
+function deleteCustomMotivation(i){
+  const s = state();
+  s.customMotivations.splice(i,1);
+  DB.set(KEYS.customMotivations, s.customMotivations);
+  render();
+}
+function saveSettings(){
+  const s = state();
+  s.settings.city = document.getElementById('set_city').value.trim();
+  s.settings.country = document.getElementById('set_country').value.trim();
+  s.settings.method = document.getElementById('set_method').value;
+  s.settings.setupDone = !!s.settings.city;
+  DB.set(KEYS.settings, s.settings);
+  DB.set(KEYS.prayerCache, null);
+  loadPrayerTimes();
+  render();
+}
+function requestNotif(){
+  ensureNotifPermission().then(ok=>{
+    alert(ok ? 'تم تفعيل الإشعارات.' : 'لم يتم منح إذن الإشعارات.');
+  });
+}
+
+/* ---------------- Reminder engine ---------------- */
+function checkReminders(){
+  const s = state();
+  const now = new Date();
+  const hhmm = now.toTimeString().slice(0,5);
+
+  // Prayers
+  if(cachedTimings){
+    Object.keys(defaultPrayers).forEach(name=>{
+      const p = s.prayers[name] || defaultPrayers[name];
+      if(!p.enabled) return;
+      const t = timeToDate(cachedTimings[name]);
+      if(!t) return;
+      const prepTime = new Date(t.getTime() - p.before*60000);
+      const prepKey = `prayer_prep_${name}_${todayStr()}`;
+      const atKey = `prayer_at_${name}_${todayStr()}`;
+      if(!alreadyFired(prepKey) && Math.abs(now-prepTime) < 30000){
+        fireNotification('استعد للصلاة', `${PRAYER_NAMES_AR[name]} بعد ${p.before} دقيقة`, prepKey);
+        markFired(prepKey);
+      }
+      if(!alreadyFired(atKey) && Math.abs(now-t) < 30000){
+        fireNotification('حان وقت الصلاة', `صلِّ ${PRAYER_NAMES_AR[name]} الآن`, atKey);
+        markFired(atKey);
+      }
+    });
+  }
+
+  // Gym
+  const todayIdx = now.getDay();
+  s.gym.filter(g=>g.day===todayIdx).forEach(g=>{
+    const t = timeToDate(g.time);
+    const prepTime = new Date(t.getTime() - g.prepMinutes*60000);
+    const prepKey = `gym_prep_${g.id}_${todayStr()}`;
+    const atKey = `gym_at_${g.id}_${todayStr()}`;
+    if(!alreadyFired(prepKey) && Math.abs(now-prepTime) < 30000){
+      fireNotification('حضّر لموعد الجيم', `موعدك بعد ${g.prepMinutes} دقيقة`, prepKey);
+      markFired(prepKey);
+    }
+    if(!alreadyFired(atKey) && Math.abs(now-t) < 30000){
+      fireNotification('وقت الجيم', g.backupAction ? `اذهب الآن، أو بديل: ${g.backupAction}` : 'اذهب الآن — حتى جلسة قصيرة تكفي', atKey);
+      markFired(atKey);
+    }
+  });
+
+  // Habits
+  s.habits.filter(h=>h.active && h.reminderTime).forEach(h=>{
+    const key = `habit_${h.id}_${todayStr()}`;
+    if(!alreadyFired(key) && h.reminderTime === hhmm){
+      fireNotification('تذكير عادة', h.name, key);
+      markFired(key);
+    }
+  });
+
+  // Bad habit danger times
+  s.habits.filter(h=>h.active && h.type==='bad' && h.dangerTimes && h.dangerTimes.length).forEach(h=>{
+    h.dangerTimes.forEach(dt=>{
+      const key = `danger_${h.id}_${dt}_${todayStr()}`;
+      if(!alreadyFired(key) && dt === hhmm){
+        const msg = RESET_ACTIONS[Math.floor(Math.random()*RESET_ACTIONS.length)];
+        fireNotification('أنت عادة في هذا الوقت', `${h.name} — ${msg}`, key);
+        markFired(key);
+      }
+    });
+  });
+
+  // Night reflection reminder
+  if(s.settings.reflectionTime){
+    const key = `reflect_${todayStr()}`;
+    if(!alreadyFired(key) && s.settings.reflectionTime === hhmm){
+      fireNotification('تأمل يومك', 'كيف كان يومك؟ افتح تبويب التقدم لتسجل ملاحظة سريعة.', key);
+      markFired(key);
+    }
+  }
+}
+
+async function loadPrayerTimes(){
+  cachedTimings = await fetchPrayerTimes();
+  if(currentScreen==='today' || currentScreen==='prayer') render();
+}
+
+/* ---------------- Init ---------------- */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+}
+ensureNotifPermission();
+loadPrayerTimes();
+render();
+setInterval(checkReminders, 20000);
+setInterval(()=>{ if(currentScreen==='today') render(); }, 60000);
+</script>
+</body>
+</html>
